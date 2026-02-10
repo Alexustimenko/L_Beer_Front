@@ -1,0 +1,90 @@
+.okt-login-bg {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* мягкий фон: тёплый + очень лёгкие синие диагонали */
+    background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(255, 236, 204, 0.85), transparent 60%),
+        radial-gradient(900px 600px at 80% 90%, rgba(210, 228, 255, 0.75), transparent 55%),
+        repeating-linear-gradient(
+            45deg,
+            rgba(10, 61, 98, 0.07),
+            rgba(10, 61, 98, 0.07) 22px,
+            rgba(255, 255, 255, 0.10) 22px,
+            rgba(255, 255, 255, 0.10) 44px
+        ),
+        linear-gradient(180deg, #fbf4e6, #f3e7d2);
+
+    font-family: system-ui;
+}
+
+
+.okt-login-card {
+    background: #fdf5e6;
+    width: 380px;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.3);
+    text-align: center;
+}
+
+.okt-login-card h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.subtitle {
+    opacity: .7;
+    margin-bottom: 25px;
+}
+
+.switch {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.switch button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: #ddd;
+    cursor: pointer;
+}
+
+.switch .active {
+    background: #0a3d62;
+    color: white;
+}
+
+.okt-login-card input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+.primary {
+    width: 100%;
+    background: #c0392b;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.primary:hover {
+    background: #e74c3c;
+}
+
+.forgot {
+    display: block;
+    margin-top: 12px;
+    font-size: 13px;
+    opacity: .6;
+}
