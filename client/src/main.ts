@@ -1,7 +1,23 @@
-
+import { Router } from "./router/Router";
 import { LoginPage } from "./components/login";
+import { RegisterPage } from "./components/register";
 
-const app = document.querySelector<HTMLDivElement>("#app");
-if (!app) throw new Error("Root element #app not found");
+const root = document.getElementById("app");
 
-new LoginPage().mount(app);
+if (!root) throw new Error("Root element not found");
+
+const router = new Router();
+
+router.register("/login", () => {
+    new LoginPage(path => router.navigate(path)).mount(root);
+});
+
+router.register("/register", () => {
+    new RegisterPage(path => router.navigate(path)).mount(root);
+});
+
+if (window.location.pathname === "/") {
+    router.navigate("/login");
+} else {
+    router.resolve();
+}

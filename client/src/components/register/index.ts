@@ -1,10 +1,10 @@
 import "./style.css";
 
-type LoginMode = "email" | "phone";
+type RegisterMode = "email" | "phone";
 
-export class LoginPage {
-    private mode: LoginMode = "email";
+export class RegisterPage {
     private navigate: (path: string) => void;
+    private mode: RegisterMode = "email";
 
     constructor(navigate: (path: string) => void) {
         this.navigate = navigate;
@@ -16,20 +16,22 @@ export class LoginPage {
             <div class="auth-card">
 
                 <h1>🍺 Oktober Shop</h1>
-                <p class="subtitle">Beer delivery for Oktoberfest</p>
+                <p class="subtitle">Create your account</p>
 
                 <div class="switch">
                     <button data-mode="phone">Phone</button>
                     <button data-mode="email" class="active">Email</button>
                 </div>
 
-                <input id="loginInput" placeholder="Email" />
+                <input id="registerInput" placeholder="Email" />
+                <input placeholder="Full name" />
                 <input type="password" placeholder="Password"/>
+                <input type="password" placeholder="Confirm password"/>
 
-                <button class="primary">Login</button>
+                <button class="primary">Register</button>
 
-                <span class="link-switch" id="goRegister">
-                    Don't have an account? Register
+                <span class="link-switch" id="goLogin">
+                    Already have an account? Login
                 </span>
 
             </div>
@@ -41,15 +43,15 @@ export class LoginPage {
 
     private bind(root: HTMLElement): void {
         const buttons = root.querySelectorAll<HTMLButtonElement>(".switch button");
-        const input = root.querySelector<HTMLInputElement>("#loginInput");
-        const goRegister = root.querySelector<HTMLSpanElement>("#goRegister");
+        const input = root.querySelector<HTMLInputElement>("#registerInput");
+        const goLogin = root.querySelector<HTMLSpanElement>("#goLogin");
 
         buttons.forEach(btn => {
             btn.onclick = () => {
                 buttons.forEach(b => b.classList.remove("active"));
                 btn.classList.add("active");
 
-                this.mode = btn.dataset.mode as LoginMode;
+                this.mode = btn.dataset.mode as RegisterMode;
 
                 if (input) {
                     input.placeholder =
@@ -58,8 +60,8 @@ export class LoginPage {
             };
         });
 
-        if (goRegister) {
-            goRegister.onclick = () => this.navigate("/register");
+        if (goLogin) {
+            goLogin.onclick = () => this.navigate("/login");
         }
     }
 }
