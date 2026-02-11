@@ -3,31 +3,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    /* мягкий фон: тёплый + очень лёгкие синие диагонали */
     background:
         radial-gradient(1200px 700px at 20% 10%, rgba(255, 236, 204, 0.85), transparent 60%),
         radial-gradient(900px 600px at 80% 90%, rgba(210, 228, 255, 0.75), transparent 55%),
         repeating-linear-gradient(
             45deg,
-            rgba(10, 61, 98, 0.07),
-            rgba(10, 61, 98, 0.07) 22px,
+            rgba(10, 61, 98, 0.08),
+            rgba(10, 61, 98, 0.08) 22px,
             rgba(255, 255, 255, 0.10) 22px,
             rgba(255, 255, 255, 0.10) 44px
         ),
         linear-gradient(180deg, #fbf4e6, #f3e7d2);
-
     font-family: system-ui;
 }
 
-
 .okt-login-card {
     background: #fdf5e6;
-    width: 380px;
+    width: 400px;
     padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 15px 40px rgba(0,0,0,.3);
+    border-radius: 18px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
     text-align: center;
+    transition: 0.3s ease;
 }
 
 .okt-login-card h1 {
@@ -43,6 +40,8 @@
 .switch {
     display: flex;
     margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .switch button {
@@ -51,6 +50,11 @@
     border: none;
     background: #ddd;
     cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.switch button:hover {
+    background: #cfcfcf;
 }
 
 .switch .active {
@@ -62,9 +66,16 @@
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid #ccc;
     font-size: 15px;
+    transition: 0.2s ease;
+}
+
+.okt-login-card input:focus {
+    outline: none;
+    border: 1px solid #0a3d62;
+    box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.15);
 }
 
 .primary {
@@ -73,18 +84,25 @@
     color: white;
     border: none;
     padding: 14px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 16px;
     cursor: pointer;
+    transition: 0.2s ease;
 }
 
 .primary:hover {
     background: #e74c3c;
 }
 
-.forgot {
+.link-switch {
     display: block;
-    margin-top: 12px;
-    font-size: 13px;
-    opacity: .6;
+    margin-top: 15px;
+    font-size: 14px;
+    opacity: .7;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.link-switch:hover {
+    opacity: 1;
 }
