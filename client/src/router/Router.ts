@@ -31,4 +31,62 @@ export class Router {
             route.handler();
         }
     }
+
+    // Метод для привязки кнопок хедера
+    bindHeaderButtons(): void {
+        // Используем MutationObserver чтобы точно поймать момент появления кнопок
+        const observer = new MutationObserver((mutations, obs) => {
+            const btnRegister = document.getElementById("btnRegister");
+            const btnLogin = document.getElementById("btnLogin");
+            
+            if (btnRegister && btnLogin) {
+                btnRegister.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigate("/register");
+                    return false;
+                };
+
+                btnLogin.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigate("/login");
+                    return false;
+                };
+                
+                obs.disconnect(); // Отключаем наблюдатель после привязки
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // Также пробуем сразу привязать, если кнопки уже есть
+        this.tryBindButtons();
+    }
+
+    private tryBindButtons(): void {
+        const btnRegister = document.getElementById("btnRegister");
+        const btnLogin = document.getElementById("btnLogin");
+        
+        if (btnRegister) {
+            btnRegister.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.navigate("/register");
+                return false;
+            };
+        }
+
+        if (btnLogin) {
+            btnLogin.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.navigate("/login");
+                return false;
+            };
+        }
+    }
 }
