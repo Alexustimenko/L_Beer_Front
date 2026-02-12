@@ -1,0 +1,161 @@
+/* Переменные для консистентности с LoginPage */
+:root {
+    --primary-blue: #0a3d62;
+    --accent-gold: #f39c12;
+    --white: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.okt-navbar {
+    width: 100%;
+    height: 80px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow);
+}
+
+.okt-nav-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Логотип */
+.okt-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.beer-emoji {
+    font-size: 32px;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-main {
+    font-weight: 900;
+    font-size: 20px;
+    color: var(--primary-blue);
+    letter-spacing: 1px;
+}
+
+.logo-sub {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #7f8c8d;
+    letter-spacing: 2px;
+    margin-top: -4px;
+}
+
+/* Действия в навигации */
+.okt-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.user-menu {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--primary-blue);
+    color: var(--primary-blue);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.nav-divider {
+    width: 1px;
+    height: 30px;
+    background: #dcdde1;
+}
+
+/* Корзина */
+.btn-cart-modern {
+    background: var(--primary-blue);
+    border: none;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-cart-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(10, 61, 98, 0.3);
+}
+
+.cart-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.cart-label {
+    font-size: 10px;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+.cart-total {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.cart-badge-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+.cart-icon {
+    font-size: 16px;
+}
+
+.cart-count {
+    font-weight: 800;
+    font-size: 14px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .user-menu {
+        display: none; /* Прячем вход/регистрацию на мобилках для чистоты */
+    }
+    .logo-sub {
+        display: none;
+    }
+}
