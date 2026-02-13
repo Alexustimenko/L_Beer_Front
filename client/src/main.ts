@@ -3,6 +3,7 @@ import { LoginPage } from "./components/login";
 import { RegisterPage } from "./components/register";
 import { Header } from "./components/Header/Header";
 import { Footer } from "./components/Footer/Footer";
+import { CartPage } from "./components/cart";
 import './main.css';
 
 interface Beer {
@@ -116,11 +117,20 @@ router.register("/register", () => {
     registerPage.mount(root);
 });
 
+// --- СТРАНИЦА КОРЗИНЫ ---
+router.register("/cart", () => {
+    console.log("Страница корзины загружена");
+    root.innerHTML = '';
+    const cartPage = new CartPage();
+    cartPage.mount(root);
+});
+
 // --- ПРЯМАЯ ПРИВЯЗКА КНОПОК ПОСЛЕ ЗАГРУЗКИ ---
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         router.bindHeaderButtons();
     }, 100);
 });
+
 
 router.resolve();
