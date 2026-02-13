@@ -3,7 +3,8 @@ import { LoginPage } from "./components/login";
 import { RegisterPage } from "./components/register";
 import { Header } from "./components/Header/Header";
 import { Footer } from "./components/Footer/Footer";
-import './main.css'; // Добавь точку и слэш// Типизация для данных
+import './main.css';
+
 interface Beer {
     id: number;
     name: string;
@@ -25,14 +26,14 @@ if (!root) throw new Error("Root element not found");
 
 const router = new Router();
 
-// Инициализируем общие компоненты
 const header = new Header(0, 0);
 const footer = new Footer();
 let cart: Beer[] = [];
 
-// --- ГЛАВНАЯ СТРАНИЦА (ВМЕСТО REACT APP) ---
+// --- ГЛАВНАЯ СТРАНИЦА ---
 router.register("/", () => {
-    // 1. Отрисовываем каркас страницы
+    console.log("Главная страница загружена");
+    
     root.innerHTML = `
         <div class="okt-page">
             <div id="header-container"></div>
@@ -75,11 +76,14 @@ router.register("/", () => {
         </div>
     `;
 
-    // 2. Монтируем Хедер и Футер
     header.mount(root.querySelector("#header-container")!);
     footer.mount(root.querySelector("#footer-container")!);
+    
+    // Привязываем кнопки хедера через роутер
+    setTimeout(() => {
+        router.bindHeaderButtons();
+    }, 50);
 
-    // 3. Логика КНОПОК "В КОРЗИНУ"
     root.querySelectorAll(".btn-buy-full").forEach(btn => {
         btn.addEventListener("click", (e) => {
             const id = Number((e.currentTarget as HTMLElement).dataset.id);
@@ -92,7 +96,6 @@ router.register("/", () => {
         });
     });
 
-    // 4. Логика СБРОСА ФИЛЬТРОВ
     root.querySelector("#clearFilters")?.addEventListener("click", () => {
         root.querySelectorAll<HTMLInputElement>(".cat-cb").forEach(cb => cb.checked = false);
     });
@@ -100,12 +103,24 @@ router.register("/", () => {
 
 // --- СТРАНИЦЫ АВТОРИЗАЦИИ ---
 router.register("/login", () => {
-    new LoginPage(path => router.navigate(path)).mount(root);
+    console.log("Страница логина загружена");
+    root.innerHTML = '';
+    const loginPage = new LoginPage((path: string) => router.navigate(path));
+    loginPage.mount(root);
 });
 
 router.register("/register", () => {
-    new RegisterPage(path => router.navigate(path)).mount(root);
+    console.log("Страница регистрации загружена");
+    root.innerHTML = '';
+    const registerPage = new RegisterPage((path: string) => router.navigate(path));
+    registerPage.mount(root);
 });
 
-// ЗАПУСК
+// --- ПРЯМАЯ ПРИВЯЗКА КНОПОК ПОСЛЕ ЗАГРУЗКИ ---
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        router.bindHeaderButtons();
+    }, 100);
+});
+
 router.resolve();
