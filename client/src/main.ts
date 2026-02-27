@@ -4,6 +4,7 @@ import { RegisterPage } from "./components/register";
 import { Header } from "./components/Header/Header";
 import { Footer } from "./components/Footer/Footer";
 import { CartPage } from "./components/cart";
+import { CheckoutPage } from "./components/checkout";
 import './main.css';
 
 interface Beer {
@@ -123,6 +124,12 @@ router.register("/cart", () => {
     root.innerHTML = '';
     const cartPage = new CartPage();
     cartPage.mount(root);
+});
+
+router.register("/checkout", () => {
+    root.innerHTML = '';
+    const checkoutPage = new CheckoutPage();
+    checkoutPage.mount(root);
 });
 
 // --- ПРЯМАЯ ПРИВЯЗКА КНОПОК ПОСЛЕ ЗАГРУЗКИ ---
