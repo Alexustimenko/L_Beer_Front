@@ -1,0 +1,137 @@
+.cart-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f8f4ec, #efe6d6);
+    padding: 60px 20px;
+    font-family: system-ui;
+}
+
+.cart-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.cart-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.cart-count {
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.cart-body {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 40px;
+}
+
+.cart-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-radius: 16px;
+    background: #faf8f3;
+    transition: 0.2s ease;
+}
+
+.cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.cart-info h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.cart-info p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.qty-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: #0a3d62;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.qty-btn:hover {
+    background: #08304d;
+}
+
+.qty-value {
+    min-width: 20px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.cart-summary-container {
+    background: #faf8f3;
+    padding: 25px;
+    border-radius: 16px;
+    height: fit-content;
+}
+
+.cart-summary {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.cart-summary-container button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: #c0392b;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.cart-summary-container button:hover {
+    background: #e74c3c;
+}
+
+@media (max-width: 768px) {
+    .cart-body {
+        grid-template-columns: 1fr;
+    }
+}

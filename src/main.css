@@ -1,0 +1,165 @@
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.okt-page {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: #f4f7f6;
+  font-family: sans-serif;
+}
+
+.okt-content {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* СКЕЛЕТОНЫ ЗАГОЛОВКОВ */
+.hero-title-skeleton {
+  width: 300px;
+  height: 48px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.hero-sub-skeleton {
+  width: 150px;
+  height: 16px;
+  background: #cbd5e0;
+  border-radius: 4px;
+  margin-bottom: 40px;
+}
+
+.okt-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 30px;
+}
+
+/* САЙДБАР */
+.filter-card {
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.filter-label-skeleton {
+  width: 80px;
+  height: 14px;
+  background: #edf2f7;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  background: #f8fafc;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+}
+
+.category-text-skeleton {
+  width: 100px;
+  height: 12px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  margin-left: 10px;
+}
+
+.checkbox-container-empty {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  background: #f1f5f9;
+  border-radius: 5px;
+  display: block;
+}
+
+.checkbox-container-empty input:checked ~ .checkmark {
+  background: #0a3d62;
+}
+
+.btn-reset-empty {
+  width: 100%;
+  height: 35px;
+  background: #fff;
+  border: 1px dashed #e2e8f0;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+/* СЕТКА ТОВАРОВ */
+.okt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.beer-card-empty {
+  background: white;
+  border-radius: 20px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-height: 300px;
+}
+
+.empty-placeholder {
+  flex-grow: 1;
+  background: #f8fafc;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Эффект мерцания для всех скелетонов */
+.empty-placeholder::after,
+.hero-title-skeleton,
+.category-text-skeleton,
+.filter-label-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.empty-placeholder::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: shimmer 2s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+.btn-buy-full {
+  width: 100%;
+  background: #0a3d62;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}

@@ -1,0 +1,12 @@
+.okt-footer-modern { 
+  padding: 60px; 
+  text-align: center; 
+  opacity: 0.5; 
+  font-size: 14px; 
+}
+
+.footer-line { 
+  height: 1px; 
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent); 
+  margin-bottom: 20px; 
+}

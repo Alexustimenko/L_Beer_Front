@@ -1,0 +1,203 @@
+.checkout-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f8f4ec, #efe6d6);
+    padding: 60px 20px;
+    font-family: system-ui;
+}
+
+.checkout-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+}
+
+.checkout-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 650;
+    letter-spacing: 0.2px;
+}
+
+.checkout-subtitle {
+    margin: 8px 0 0 0;
+    opacity: 0.65;
+    font-size: 14px;
+}
+
+.checkout-form {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field-wide {
+    grid-column: 1 / -1;
+}
+
+.field label {
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.field input,
+.field textarea {
+    padding: 12px 12px;
+    border-radius: 12px;
+    border: 1px solid #e1e1e1;
+    font-size: 14px;
+    transition: 0.2s ease;
+    background: #fff;
+}
+
+.field textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: #0a3d62;
+    box-shadow: 0 0 0 3px rgba(10, 61, 98, 0.10);
+}
+
+.section {
+    background: #faf8f3;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px;
+    padding: 18px;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.85;
+    margin-bottom: 12px;
+}
+
+.payment {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.pay-option {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: #ffffff;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.pay-option:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+
+.pay-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.pay-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #0a3d62;
+    margin-top: 2px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 18px;
+}
+
+.pay-dot::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: transparent;
+    transition: 0.2s ease;
+}
+
+.pay-option input:checked + .pay-dot::after {
+    background: #0a3d62;
+}
+
+.pay-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pay-main {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.pay-sub {
+    font-size: 12px;
+    opacity: 0.65;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    padding: 14px 18px;
+    border: none;
+    border-radius: 12px;
+    background: #c0392b;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: #e74c3c;
+}
+
+.hint {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+@media (max-width: 820px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+    .payment {
+        grid-template-columns: 1fr;
+    }
+    .checkout-wrapper {
+        padding: 26px;
+    }
+}
