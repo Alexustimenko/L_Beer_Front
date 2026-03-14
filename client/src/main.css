@@ -163,3 +163,139 @@ html, body, #root {
   letter-spacing: 1px;
   cursor: pointer;
 }
+.user-welcome {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: center;
+}
+
+.user-email {
+    font-size: 14px;
+    color: #666;
+    background: #f5f5f5;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+.btn-logout {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.btn-logout:hover {
+    background: #c82333;
+}
+
+.hero-title {
+    font-size: 48px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.hero-subtitle {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.beer-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.beer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.beer-image {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.beer-name {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.beer-category {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.beer-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.btn-buy {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.btn-buy:hover {
+    background: #0056b3;
+}
+
+.btn-reset {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-reset:hover {
+    background: #5a6268;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.filter-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.category-text {
+    margin-left: 5px;
+}

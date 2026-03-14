@@ -9,6 +9,32 @@ export class Header {
         this.totalPrice = totalPrice;
     }
 
+    // Проверка авторизации
+    private isAuthenticated(): boolean {
+        return !!localStorage.getItem('token');
+    }
+
+    // Получение имени пользователя
+    private getUserName(): string {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                return user.name || 'Пользователь';
+            } catch {
+                return 'Пользователь';
+            }
+        }
+        return 'Пользователь';
+    }
+
+    // Выход из аккаунта
+    private logout(): void {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+    }
+
     // Метод для обновления данных без полной перерисовки всего хедера
     public update(count: number, total: number): void {
         this.cartCount = count;
@@ -22,6 +48,9 @@ export class Header {
     }
 
     mount(root: HTMLElement): void {
+        const isAuth = this.isAuthenticated();
+        const userName = this.getUserName();
+
         root.innerHTML = `
         <nav class="okt-navbar">
             <div class="okt-nav-container">
@@ -35,11 +64,18 @@ export class Header {
 
                 <div class="okt-nav-actions">
                     <div class="user-menu">
-                        <button class="btn-secondary" id="btnRegister">Регистрация</button>
-                        <button class="btn-secondary" id="btnLogin">Войти</button>
+                        ${isAuth ? `
+                            <div class="user-info">
+                                <span class="user-greeting">👋 ${userName}</span>
+                                <button class="btn-logout" id="btnLogout">Выйти</button>
+                            </div>
+                        ` : `
+                            <button class="btn-secondary" id="btnRegister">Регистрация</button>
+                            <button class="btn-secondary" id="btnLogin">Войти</button>
+                        `}
                     </div>
                     <div class="nav-divider"></div>
-                    <button class="btn-cart-modern">
+                    <button class="btn-cart-modern" id="btnCart">
                         <div class="cart-info">
                             <span class="cart-label">Корзина</span>
                             <span id="cart-total" class="cart-total">${this.totalPrice} ₽</span>
@@ -53,5 +89,37 @@ export class Header {
             </div>
         </nav>
         `;
+
+        // Добавляем обработчики событий
+        setTimeout(() => {
+            if (isAuth) {
+                const logoutBtn = document.getElementById('btnLogout');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => this.logout());
+                }
+            } else {
+                const loginBtn = document.getElementById('btnLogin');
+                const registerBtn = document.getElementById('btnRegister');
+                
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', () => {
+                        window.location.href = '/login';
+                    });
+                }
+                
+                if (registerBtn) {
+                    registerBtn.addEventListener('click', () => {
+                        window.location.href = '/register';
+                    });
+                }
+            }
+
+            const cartBtn = document.getElementById('btnCart');
+            if (cartBtn) {
+                cartBtn.addEventListener('click', () => {
+                    window.location.href = '/cart';
+                });
+            }
+        }, 0);
     }
 }
