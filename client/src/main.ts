@@ -6,6 +6,8 @@ import { Footer } from "./components/Footer/Footer";
 import { CartPage } from "./components/cart";
 import './main.css';
 
+const API_BASE = "http://localhost:5000";
+
 interface Beer {
     id: number;
     name: string;
@@ -19,7 +21,8 @@ interface User {
     name: string;
 }
 
-const BEER_DATA: Beer[] = [
+// Резервные данные каталога, если бэкенд недоступен
+const BEER_DATA_FALLBACK: Beer[] = [
     { id: 1, name: "Lager 1", price: 450, category: "Cat 1" },
     { id: 2, name: "Wheat 1", price: 520, category: "Cat 2" },
     { id: 3, name: "Fest 1", price: 600, category: "Cat 3" },
@@ -35,7 +38,6 @@ const router = new Router();
 
 const header = new Header(0, 0);
 const footer = new Footer();
-let cart: Beer[] = [];
 
 // Функция для получения текущего пользователя
 function getCurrentUser(): User | null {
@@ -63,13 +65,39 @@ function logout(): void {
 }
 
 // --- ГЛАВНАЯ СТРАНИЦА ---
-router.register("/", () => {
+router.register("/", async () => {
     console.log("Главная страница загружена");
-    
+
     const currentUser = getCurrentUser();
-    const welcomeMessage = currentUser 
-        ? `👋 Добро пожаловать, ${currentUser.name}!` 
-        : 'Добро пожаловать в Oktober Shop';
+    const welcomeMessage = currentUser
+        ? `👋 Добро пожаловать, ${currentUser.name}!`
+        : "Добро пожаловать в Oktober Shop";
+
+    // Загружаем каталог и корзину с бэкенда
+    let beerData: Beer[] = BEER_DATA_FALLBACK;
+    let cartCount = 0;
+    let cartTotal = 0;
+
+    try {
+        const [productsRes, cartRes] = await Promise.all([
+            fetch(`${API_BASE}/products`),
+            fetch(`${API_BASE}/cart`),
+        ]);
+        if (productsRes.ok) {
+            const products = await productsRes.json();
+            if (Array.isArray(products) && products.length > 0) beerData = products;
+        }
+        if (cartRes.ok) {
+            const cart = await cartRes.json();
+            const items = cart.items || [];
+            cartCount = items.reduce((sum: number, i: { quantity: number }) => sum + i.quantity, 0);
+            cartTotal = items.reduce((sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity, 0);
+        }
+    } catch (_e) {
+        // используем fallback и нулевую корзину
+    }
+
+    header.update(cartCount, cartTotal);
 
     root.innerHTML = `
         <div class="okt-page">
@@ -78,7 +106,6 @@ router.register("/", () => {
                 <header class="okt-hero">
                     <h1 class="hero-title">🍺 OKTOBER SHOP</h1>
                     <p class="hero-subtitle">${welcomeMessage}</p>
-                    <!-- Убраны user-email и кнопка выхода отсюда -->
                 </header>
                 <div class="okt-layout">
                     <aside class="okt-filters">
@@ -93,13 +120,13 @@ router.register("/", () => {
                                         <span class="checkmark"></span>
                                         <span class="category-text">Категория ${id}</span>
                                     </label>
-                                `).join('')}
+                                `).join("")}
                             </div>
                             <button class="btn-reset" id="clearFilters">Сбросить фильтры</button>
                         </div>
                     </aside>
                     <section class="okt-grid" id="beer-grid">
-                        ${BEER_DATA.map(beer => `
+                        ${beerData.map(beer => `
                             <div class="beer-card">
                                 <div class="beer-image">🍺</div>
                                 <h3 class="beer-name">${beer.name}</h3>
@@ -107,7 +134,7 @@ router.register("/", () => {
                                 <p class="beer-price">${beer.price} ₽</p>
                                 <button class="btn-buy" data-id="${beer.id}">➕ В КОРЗИНУ</button>
                             </div>
-                        `).join('')}
+                        `).join("")}
                     </section>
                 </div>
             </main>
@@ -117,42 +144,59 @@ router.register("/", () => {
 
     header.mount(root.querySelector("#header-container")!);
     footer.mount(root.querySelector("#footer-container")!);
-    
+
     setTimeout(() => {
         router.bindHeaderButtons();
     }, 50);
 
-    // Кнопки добавления в корзину
+    // Добавление в корзину через API бэкенда
     root.querySelectorAll(".btn-buy").forEach(btn => {
-        btn.addEventListener("click", (e) => {
+        btn.addEventListener("click", async (e) => {
             const id = Number((e.currentTarget as HTMLElement).dataset.id);
-            const beer = BEER_DATA.find(b => b.id === id);
-            if (beer) {
-                cart.push(beer);
-                const total = cart.reduce((sum, b) => sum + b.price, 0);
-                header.update(cart.length, total);
-                
-                // Показываем уведомление
+            const beer = beerData.find(b => b.id === id);
+            if (!beer) return;
+            try {
+                const res = await fetch(`${API_BASE}/cart`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        productId: String(beer.id),
+                        name: beer.name,
+                        price: beer.price,
+                        quantity: 1,
+                    }),
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert("Не удалось добавить в корзину: " + (err.message || res.status));
+                    return;
+                }
+                const cart = await res.json();
+                const items = cart.items || [];
+                const count = items.reduce((sum: number, i: { quantity: number }) => sum + i.quantity, 0);
+                const total = items.reduce((sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity, 0);
+                header.update(count, total);
                 alert(`🍺 ${beer.name} добавлен в корзину!`);
+            } catch (_e) {
+                alert("Ошибка сети. Проверьте, что бэкенд запущен на http://localhost:5000");
             }
         });
     });
 
     // Сброс фильтров
     root.querySelector("#clearFilters")?.addEventListener("click", () => {
-        root.querySelectorAll<HTMLInputElement>(".cat-cb").forEach(cb => cb.checked = false);
+        root.querySelectorAll<HTMLInputElement>(".cat-cb").forEach(cb => (cb.checked = false));
     });
 
     // Поиск
     root.querySelector("#mainSearch")?.addEventListener("input", (e) => {
         const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
         const cards = root.querySelectorAll<HTMLElement>(".beer-card");
-        
         cards.forEach((card, index) => {
-            const beer = BEER_DATA[index];
+            const beer = beerData[index];
             if (beer) {
                 const matches = beer.name.toLowerCase().includes(searchTerm);
-                card.style.display = matches ? 'block' : 'none';
+                card.style.display = matches ? "block" : "none";
             }
         });
     });

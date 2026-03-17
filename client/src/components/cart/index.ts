@@ -1,147 +1,216 @@
+import "./style.css";
+
+interface CartItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
 export class CartPage {
-  async mount(root: HTMLElement) {
-    const res = await fetch("http://localhost:5000/cart");
-    const cart = await res.json();
 
-    root.innerHTML = `
-      <div class="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="flex items-center justify-between mb-8">
-          <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Your Cart</h1>
-          <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-medium">
-            ${cart.items.length} items
-          </span>
-        </div>
-        
-        <div id="items" class="space-y-4 mb-8"></div>
+  async mount(root: HTMLElement): Promise<void> {
 
-        <div class="border-t pt-6 flex justify-between items-center">
-          <div class="text-gray-500">Subtotal will be calculated at checkout</div>
-          <button id="checkout" class="bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-[1.02] active:scale-95 shadow-md">
-            Go to Checkout
-          </button>
-        </div>
-      </div>
-    `;
+    try {
 
-    const itemsContainer = root.querySelector("#items")!;
+      const res = await fetch("http://localhost:5000/cart");
 
-    cart.items.forEach((item: any) => {
-      const el = document.createElement("div");
-      el.className = "flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-transparent hover:border-gray-200 transition-colors";
+      if (!res.ok) throw new Error("Backend error");
 
-      el.innerHTML = `
-        <div class="flex flex-col">
-          <span class="font-semibold text-gray-700 text-lg">${item.name}</span>
-          <span class="text-sm text-gray-400 font-mono">ID: ${item.productId}</span>
-        </div>
-        
-        <div class="flex items-center gap-4">
-          <div class="flex items-center border rounded-md bg-white">
-            <input type="number" value="${item.quantity}" min="1" 
-              class="w-16 px-2 py-1 text-center outline-none bg-transparent font-medium" />
+      const cart = await res.json();
+      const items: CartItem[] = cart.items || [];
+
+      const total = items.reduce((sum: number, i: CartItem) =>
+        sum + i.price * i.quantity, 0
+      );
+
+      root.innerHTML = `
+        <div class="cart-page">
+
+          <div class="cart-container">
+
+            <div class="cart-header">
+              <h1>🛒 Your Cart</h1>
+              <span>${items.length} items</span>
+            </div>
+
+            <div class="cart-list">
+              ${
+                items.length === 0
+                  ? `<div class="empty">Your cart is empty</div>`
+                  : items.map((item: CartItem) => `
+                    <div class="cart-row" data-id="${item.productId}">
+                      
+                      <div class="cart-info">
+                        <div class="name">${item.name}</div>
+                        <div class="price">$${item.price}</div>
+                      </div>
+
+                      <div class="cart-controls">
+                        <button class="minus">−</button>
+                        <span class="qty">${item.quantity}</span>
+                        <button class="plus">+</button>
+                      </div>
+
+                      <button class="remove">×</button>
+
+                    </div>
+                  `).join("")
+              }
+            </div>
+
+            <div class="cart-bottom">
+              <div class="total">Total: $${total}</div>
+              <button id="checkoutBtn" ${items.length === 0 ? "disabled" : ""}>
+                Checkout
+              </button>
+            </div>
+
           </div>
-          <button class="remove text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-md transition-colors text-sm font-medium">
-            Remove
-          </button>
+
         </div>
       `;
 
-      // Логика обновления
-      const qty = el.querySelector("input")!;
-      qty.addEventListener("change", async () => {
+      this.bind(root, items);
+
+    } catch (e) {
+
+      console.error(e);
+
+      root.innerHTML = `
+        <div style="color:red">
+          Error loading cart
+        </div>
+      `;
+    }
+  }
+
+  private bind(root: HTMLElement, items: CartItem[]): void {
+
+    const rows = root.querySelectorAll(".cart-row");
+
+    rows.forEach(row => {
+
+      const id = row.getAttribute("data-id");
+
+      const plus = row.querySelector(".plus") as HTMLButtonElement;
+      const minus = row.querySelector(".minus") as HTMLButtonElement;
+      const qtyEl = row.querySelector(".qty") as HTMLElement;
+      const remove = row.querySelector(".remove") as HTMLButtonElement;
+
+      let qty = Number(qtyEl.textContent);
+
+      plus.onclick = async () => {
+        qty++;
+        qtyEl.textContent = String(qty);
+
         await fetch("http://localhost:5000/cart", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: item.productId,
-            quantity: Number(qty.value)
-          })
+          body: JSON.stringify({ productId: id, quantity: qty })
         });
-      });
+      };
 
-      // Логика удаления
-      el.querySelector(".remove")!.addEventListener("click", async () => {
+      minus.onclick = async () => {
+
+        if (qty <= 1) return;
+
+        qty--;
+        qtyEl.textContent = String(qty);
+
+        await fetch("http://localhost:5000/cart", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: id, quantity: qty })
+        });
+      };
+
+      remove.onclick = async () => {
+
         await fetch("http://localhost:5000/cart", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId: item.productId })
+          body: JSON.stringify({ productId: id })
         });
-        el.style.opacity = '0';
-        setTimeout(() => el.remove(), 300);
-      });
 
-      itemsContainer.appendChild(el);
+        row.remove();
+      };
+
     });
 
-    root.querySelector("#checkout")!.addEventListener("click", () => {
-      this.showCheckout(root, cart.items);
+    const checkoutBtn = root.querySelector("#checkoutBtn");
+
+    checkoutBtn?.addEventListener("click", () => {
+      this.showCheckoutModal(items);
     });
   }
 
-  showCheckout(root: HTMLElement, items: any[]) {
-    root.innerHTML = `
-      <div class="max-w-md mx-auto p-8 bg-white rounded-2xl shadow-xl border border-gray-100">
-        <button id="back" class="mb-6 text-sm text-gray-500 hover:text-black flex items-center gap-1 transition-colors">
-           ← Back to cart
-        </button>
-        
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Delivery Details</h2>
+  private showCheckoutModal(items: CartItem[]): void {
 
-        <div class="space-y-5">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Shipping Address</label>
-            <input id="address" type="text" placeholder="Street, City, Zip" 
-              class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all placeholder:text-gray-300"/>
-          </div>
+    const modal = document.createElement("div");
+    modal.className = "modal";
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
-            <select id="payment" class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black outline-none appearance-none bg-white cursor-pointer">
-              <option value="card">💳 Credit Card</option>
-              <option value="cash">💵 Cash on Delivery</option>
-            </select>
-          </div>
+    modal.innerHTML = `
+      <div class="modal-box">
 
-          <div class="p-4 bg-blue-50 rounded-lg flex items-center gap-3 border border-blue-100">
-            <input type="checkbox" id="captcha" class="w-5 h-5 rounded border-gray-300 text-black focus:ring-black cursor-pointer"/>
-            <label for="captcha" class="text-sm font-medium text-blue-800 cursor-pointer select-none">
-              I verify that I'm a human
-            </label>
-          </div>
+        <h2>Delivery</h2>
 
-          <button id="order" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200 transition-all active:scale-[0.98]">
-            Place Order
-          </button>
-        </div>
+        <input id="address" placeholder="Enter your address"/>
+
+        <select id="payment">
+          <option value="">Select payment</option>
+          <option value="card">Card</option>
+          <option value="cash">Cash</option>
+        </select>
+
+        <label>
+          <input type="checkbox" id="captcha"/>
+          I am not a robot
+        </label>
+
+        <button id="orderBtn">Place order</button>
+
       </div>
     `;
 
-    // Кнопка назад
-    root.querySelector("#back")!.addEventListener("click", () => this.mount(root));
+    document.body.appendChild(modal);
 
-    root.querySelector("#order")!.addEventListener("click", async () => {
-      const address = (document.querySelector("#address") as HTMLInputElement).value;
-      const payment = (document.querySelector("#payment") as HTMLSelectElement).value;
-      const captcha = (document.querySelector("#captcha") as HTMLInputElement).checked;
+    // закрытие по клику вне
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+
+    const orderBtn = modal.querySelector("#orderBtn") as HTMLButtonElement;
+
+    orderBtn.addEventListener("click", async () => {
+
+      const address = (modal.querySelector("#address") as HTMLInputElement).value.trim();
+      const payment = (modal.querySelector("#payment") as HTMLSelectElement).value;
+      const captcha = (modal.querySelector("#captcha") as HTMLInputElement).checked;
 
       if (!address) {
-        alert("Please enter address");
+        alert("Введите адрес доставки");
+        return;
+      }
+
+      if (!payment) {
+        alert("Выберите способ оплаты");
         return;
       }
 
       if (!captcha) {
-        alert("Please confirm you are human");
+        alert("Подтвердите, что вы не робот");
         return;
       }
 
-      const btn = (root.querySelector("#order") as HTMLButtonElement);
-      btn.disabled = true;
-      btn.innerText = "Processing...";
-
       try {
-        await fetch("http://localhost:5000/checkout", {
+        const res = await fetch("http://localhost:5000/checkout", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({
             items,
             address,
@@ -150,18 +219,18 @@ export class CartPage {
           })
         });
 
-        root.innerHTML = `
-          <div class="text-center py-20 animate-bounce">
-            <div class="text-6xl mb-4">🎉</div>
-            <h2 class="text-3xl font-bold text-gray-800">Order Placed!</h2>
-            <p class="text-gray-500 mt-2">Thank you for your purchase.</p>
-          </div>
-        `;
-        setTimeout(() => location.reload(), 3000);
-      } catch (e) {
-        btn.disabled = false;
-        btn.innerText = "Place Order";
-        alert("Something went wrong");
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          alert("Ошибка оформления заказа: " + (data.message || res.status));
+          return;
+        }
+
+        modal.remove();
+        alert(data.message || "Заказ успешно оформлен!");
+        location.reload();
+      } catch (_e) {
+        alert("Ошибка сети. Проверьте, что бэкенд запущен на http://localhost:5000");
       }
     });
   }
