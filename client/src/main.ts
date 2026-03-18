@@ -24,9 +24,9 @@ interface User {
     id: string;
     email: string;
     name: string;
+    role?: string;
 }
 
-// Резервные данные каталога, если бэкенд недоступен
 const BEER_DATA_FALLBACK: Beer[] = [
     { id: 1, name: "Lager 1", description: "Light lager beer with a clean finish.", price: 450, category: "Cat 1", available: true },
     { id: 2, name: "Wheat 1", description: "Wheat beer with soft фруктовые ноты.", price: 520, category: "Cat 2", available: true },
@@ -36,17 +36,16 @@ const BEER_DATA_FALLBACK: Beer[] = [
     { id: 6, name: "Zero 1", description: "Non-alcoholic beer, crisp and refreshing.", price: 390, category: "Cat 1", available: true },
 ];
 
-const root = document.getElementById("app");
-if (!root) throw new Error("Root element not found");
+const rootElement = document.getElementById("app");
+if (!rootElement) throw new Error("Root element not found");
+const root: HTMLElement = rootElement;
 
 const router = new Router();
-
 const header = new Header(0, 0);
 const footer = new Footer();
 
-// Функция для получения текущего пользователя
 function getCurrentUser(): User | null {
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem("user");
     if (userStr) {
         try {
             return JSON.parse(userStr);
@@ -57,7 +56,6 @@ function getCurrentUser(): User | null {
     return null;
 }
 
-// Функция для проверки авторизации
 function isAuthenticated(): boolean {
     return !!localStorage.getItem('user');
 }
@@ -91,7 +89,6 @@ async function syncUserFromSession(): Promise<User | null> {
     }
 }
 
-// --- ГЛАВНАЯ СТРАНИЦА ---
 router.register("/", async () => {
     console.log("Главная страница загружена");
 
@@ -102,7 +99,6 @@ router.register("/", async () => {
         ? `👋 Добро пожаловать, ${currentUser.name}!`
         : "Добро пожаловать в Oktober Shop";
 
-    // Загружаем каталог и корзину с бэкенда
     let beerData: Beer[] = BEER_DATA_FALLBACK;
     let cartCount = 0;
     let cartTotal = 0;
@@ -112,21 +108,30 @@ router.register("/", async () => {
             fetch(`${API_BASE}/products`),
             fetch(`${API_BASE}/cart`, { credentials: "include" }),
         ]);
+
         if (productsRes.ok) {
             const products = await productsRes.json();
-            if (Array.isArray(products) && products.length > 0) beerData = products;
+            if (Array.isArray(products) && products.length > 0) {
+                beerData = products;
+            }
         }
+
         if (cartRes.ok) {
             const cart = await cartRes.json();
             const items = cart.items || [];
             cartCount = items.reduce((sum: number, i: { quantity: number }) => sum + i.quantity, 0);
-            cartTotal = items.reduce((sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity, 0);
+            cartTotal = items.reduce((sum: number, i: { price?: number; quantity: number }) => sum + (i.price || 0) * i.quantity, 0);
         }
     } catch (_e) {
-        // используем fallback и нулевую корзину
     }
 
     header.update(cartCount, cartTotal);
+
+    const categories = [...new Set(
+        beerData
+            .map(beer => beer.category)
+            .filter(Boolean)
+    )] as string[];
 
     root.innerHTML = `
         <div class="okt-page">
@@ -136,6 +141,7 @@ router.register("/", async () => {
                     <h1 class="hero-title">🍺 OKTOBER SHOP</h1>
                     <p class="hero-subtitle">${welcomeMessage}</p>
                 </header>
+
                 <div class="okt-layout">
                     <aside class="okt-filters">
                         <div class="filter-card">
@@ -149,11 +155,11 @@ router.register("/", async () => {
                             </select>
                             <label class="filter-label">Категории</label>
                             <div class="filter-options">
-                                ${[1, 2, 3, 4, 5].map(id => `
+                                ${categories.map(category => `
                                     <label class="checkbox-container">
-                                        <input type="checkbox" class="cat-cb" data-id="${id}" />
+                                        <input type="checkbox" class="cat-cb" data-category="${category}" />
                                         <span class="checkmark"></span>
-                                        <span class="category-text">Категория ${id}</span>
+                                        <span class="category-text">${category}</span>
                                     </label>
                                 `).join("")}
                             </div>
@@ -165,6 +171,7 @@ router.register("/", async () => {
                             <button class="btn-reset" id="clearFilters">Сбросить фильтры</button>
                         </div>
                     </aside>
+
                     <section class="okt-grid" id="beer-grid">
                     </section>
                 </div>
@@ -298,37 +305,33 @@ router.register("/", async () => {
     root.querySelectorAll<HTMLInputElement>(".cat-cb").forEach(cb => cb.addEventListener("change", () => loadProducts()));
 });
 
-// --- СТРАНИЦЫ АВТОРИЗАЦИИ ---
 router.register("/login", () => {
-    // Если уже авторизован, редирект на главную
     if (isAuthenticated()) {
-        router.navigate('/');
+        router.navigate("/");
         return;
     }
-    
+
     console.log("Страница логина загружена");
-    root.innerHTML = '';
+    root.innerHTML = "";
     const loginPage = new LoginPage((path: string) => router.navigate(path));
     loginPage.mount(root);
 });
 
 router.register("/register", () => {
-    // Если уже авторизован, редирект на главную
     if (isAuthenticated()) {
-        router.navigate('/');
+        router.navigate("/");
         return;
     }
-    
+
     console.log("Страница регистрации загружена");
-    root.innerHTML = '';
+    root.innerHTML = "";
     const registerPage = new RegisterPage((path: string) => router.navigate(path));
     registerPage.mount(root);
 });
 
-// --- СТРАНИЦА КОРЗИНЫ ---
 router.register("/cart", () => {
     console.log("Страница корзины загружена");
-    root.innerHTML = '';
+    root.innerHTML = "";
     const cartPage = new CartPage();
     cartPage.mount(root);
 });
