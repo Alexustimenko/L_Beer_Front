@@ -88,6 +88,20 @@ export class LoginPage {
                 loginButton.disabled = true;
 
                 try {
+                    // Вход в админку: admin@gmail.com / admin → редирект в админку
+                    if (email.trim() === 'admin@gmail.com' && password === 'admin') {
+                        const adminRes = await fetch('http://localhost:5000/admin/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ email: email.trim(), password })
+                        });
+                        if (adminRes.ok) {
+                            window.location.href = '/admin';
+                            return;
+                        }
+                    }
+
                     const response = await fetch('http://localhost:5000/login', {
                         method: 'POST',
                         headers: {

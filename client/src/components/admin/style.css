@@ -1,0 +1,206 @@
+.admin-page {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.admin-login {
+  max-width: 360px;
+  margin: 40px auto;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.admin-login h1 {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+}
+
+.admin-login input {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.admin-login button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #4a9;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-login .error {
+  color: #f66;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.admin-header a,
+.admin-header button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-table th {
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.admin-table .btn-edit,
+.admin-table .btn-delete {
+  padding: 6px 10px;
+  margin-right: 6px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.admin-table .btn-edit {
+  background: #6af;
+  color: #fff;
+}
+
+.admin-table .btn-delete {
+  background: #e66;
+  color: #fff;
+}
+
+.admin-form-card {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 20px;
+}
+
+.admin-form-card h2 {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+}
+
+.admin-form-card label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.admin-form-card input,
+.admin-form-card select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.admin-form-card .row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.admin-form-card .row > div {
+  flex: 1;
+  min-width: 120px;
+}
+
+.admin-form-card .chk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-form-card .chk input {
+  width: auto;
+  margin: 0;
+}
+
+.admin-form-card button[type="submit"],
+.admin-form-card .btn-cancel {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.admin-form-card button[type="submit"] {
+  background: #4a9;
+  color: #fff;
+  margin-right: 8px;
+}
+
+.admin-form-card .btn-cancel {
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+.admin-image-preview {
+  margin-bottom: 12px;
+}
+.admin-image-preview img {
+  max-width: 120px;
+  max-height: 120px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}

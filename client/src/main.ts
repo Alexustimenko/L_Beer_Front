@@ -5,6 +5,7 @@ import { Header } from "./components/Header/Header";
 import { Footer } from "./components/Footer/Footer";
 import { CartPage } from "./components/cart";
 import { DeliveryPage } from "./components/delivery";
+import { AdminPage } from "./components/admin";
 import './main.css';
 
 const API_BASE = "http://localhost:5000";
@@ -16,6 +17,7 @@ interface Beer {
     price: number;
     category: string;
     available: boolean;
+    image?: string;
 }
 
 interface User {
@@ -183,7 +185,11 @@ router.register("/", async () => {
     const renderGrid = (data: Beer[]) => {
         gridEl.innerHTML = data.map(beer => `
             <div class="beer-card">
-                <div class="beer-image">🍺</div>
+                <div class="beer-image">
+                    ${beer.image
+                        ? `<img src="${API_BASE}${beer.image}" alt="${beer.name}" class="beer-img" onerror="this.outerHTML='🍺'" />`
+                        : "🍺"}
+                </div>
                 <h3 class="beer-name" data-title>${beer.name}</h3>
                 <p class="beer-category">${beer.category}</p>
                 <p class="beer-desc">${beer.description ?? ""}</p>
@@ -332,6 +338,12 @@ router.register("/delivery", () => {
     root.innerHTML = '';
     const deliveryPage = new DeliveryPage();
     deliveryPage.mount(root);
+});
+
+router.register("/admin", () => {
+    root.innerHTML = '';
+    const adminPage = new AdminPage();
+    adminPage.mount(root);
 });
 
 // --- ПРЯМАЯ ПРИВЯЗКА КНОПОК ПОСЛЕ ЗАГРУЗКИ ---
