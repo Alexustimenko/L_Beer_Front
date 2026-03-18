@@ -1,0 +1,64 @@
+.delivery-page {
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.delivery-card {
+  width: 100%;
+  max-width: 520px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.muted {
+  opacity: 0.85;
+}
+
+.order-summary {
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.order-summary .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.delivery-form {
+  display: grid;
+  gap: 10px;
+}
+
+.delivery-form input,
+.delivery-form select {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.12);
+  color: inherit;
+}
+
+.delivery-form button {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+.delivery-form button.secondary {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.captcha {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  user-select: none;
+}
+

@@ -11,7 +11,7 @@ export class Header {
 
     // Проверка авторизации
     private isAuthenticated(): boolean {
-        return !!localStorage.getItem('token');
+        return !!localStorage.getItem('user');
     }
 
     // Получение имени пользователя
@@ -30,9 +30,12 @@ export class Header {
 
     // Выход из аккаунта
     private logout(): void {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/';
+        fetch("http://localhost:5000/logout", { method: "POST", credentials: "include" })
+            .catch(() => {})
+            .finally(() => {
+                localStorage.removeItem('user');
+                window.location.href = '/';
+            });
     }
 
     // Метод для обновления данных без полной перерисовки всего хедера

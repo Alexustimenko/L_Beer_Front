@@ -93,8 +93,9 @@ export class LoginPage {
                         headers: {
                             'Content-Type': 'application/json',
                         },
+                        credentials: 'include',
                         body: JSON.stringify({ 
-                            email: email, // Бэкенд ожидает email, даже если это телефон
+                            identifier: email, // email/phone/login
                             password 
                         })
                     });
@@ -103,7 +104,6 @@ export class LoginPage {
 
                     if (response.ok) {
                         // Сохраняем данные пользователя
-                        localStorage.setItem('token', data.token);
                         localStorage.setItem('user', JSON.stringify(data.user));
                         
                         // Перенаправляем на главную
