@@ -84,30 +84,40 @@ export class LoginPage {
                 loginButton.disabled = true;
 
                 try {
-                    const response = await fetch("http://localhost:5000/login", {
-                        method: "POST",
+                    // Вход в админку: admin@gmail.com / admin → редирект в админку
+                    if (email.trim() === 'admin@gmail.com' && password === 'admin') {
+                        const adminRes = await fetch('http://localhost:5000/admin/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ email: email.trim(), password })
+                        });
+                        if (adminRes.ok) {
+                            window.location.href = '/admin';
+                            return;
+                        }
+                    }
+
+                    const response = await fetch('http://localhost:5000/login', {
+                        method: 'POST',
                         headers: {
                             "Content-Type": "application/json",
                         },
+                        credentials: 'include',
                         body: JSON.stringify({ 
-                            email,
-                            password
+                            identifier: email, // email/phone/login
+                            password 
                         })
                     });
 
                     const data = await response.json();
 
                     if (response.ok) {
-                        localStorage.setItem("token", data.token);
-                        localStorage.setItem("role", data.user.role);
-                        localStorage.setItem("userName", data.user.name);
-                        localStorage.setItem("user", JSON.stringify(data.user));
-
-                        if (data.user.role === "admin") {
-                            this.navigate("/admin");
-                        } else {
-                            this.navigate("/");
-                        }
+                        // Сохраняем данные пользователя
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        
+                        // Перенаправляем на главную
+                        window.location.href = '/';
                     } else {
                         this.showError(errorDiv, data.message || "Login failed");
                     }

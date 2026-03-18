@@ -13,8 +13,13 @@ export class CartPage {
 
     try {
 
-      const res = await fetch("http://localhost:5000/cart");
+      const res = await fetch("http://localhost:5000/cart", { credentials: "include" });
 
+      if (res.status === 401) {
+        alert("Корзина доступна только для зарегистрированных пользователей");
+        window.location.href = "/login";
+        return;
+      }
       if (!res.ok) throw new Error("Backend error");
 
       const cart = await res.json();
@@ -42,8 +47,8 @@ export class CartPage {
                     <div class="cart-row" data-id="${item.productId}">
                       
                       <div class="cart-info">
-                        <div class="name">${item.name}</div>
-                        <div class="price">$${item.price}</div>
+                        <div class="name" data-title="basket">${item.name}</div>
+                        <div class="price" data-price="basket">$${item.price}</div>
                       </div>
 
                       <div class="cart-controls">
@@ -107,6 +112,7 @@ export class CartPage {
         await fetch("http://localhost:5000/cart", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ productId: id, quantity: qty })
         });
       };
@@ -121,6 +127,7 @@ export class CartPage {
         await fetch("http://localhost:5000/cart", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ productId: id, quantity: qty })
         });
       };
@@ -130,6 +137,7 @@ export class CartPage {
         await fetch("http://localhost:5000/cart", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ productId: id })
         });
 
@@ -141,97 +149,8 @@ export class CartPage {
     const checkoutBtn = root.querySelector("#checkoutBtn");
 
     checkoutBtn?.addEventListener("click", () => {
-      this.showCheckoutModal(items);
+      window.location.href = "/delivery";
     });
   }
 
-  private showCheckoutModal(items: CartItem[]): void {
-
-    const modal = document.createElement("div");
-    modal.className = "modal";
-
-    modal.innerHTML = `
-      <div class="modal-box">
-
-        <h2>Delivery</h2>
-
-        <input id="address" placeholder="Enter your address"/>
-
-        <select id="payment">
-          <option value="">Select payment</option>
-          <option value="card">Card</option>
-          <option value="cash">Cash</option>
-        </select>
-
-        <label>
-          <input type="checkbox" id="captcha"/>
-          I am not a robot
-        </label>
-
-        <button id="orderBtn">Place order</button>
-
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // закрытие по клику вне
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        modal.remove();
-      }
-    });
-
-    const orderBtn = modal.querySelector("#orderBtn") as HTMLButtonElement;
-
-    orderBtn.addEventListener("click", async () => {
-
-      const address = (modal.querySelector("#address") as HTMLInputElement).value.trim();
-      const payment = (modal.querySelector("#payment") as HTMLSelectElement).value;
-      const captcha = (modal.querySelector("#captcha") as HTMLInputElement).checked;
-
-      if (!address) {
-        alert("Введите адрес доставки");
-        return;
-      }
-
-      if (!payment) {
-        alert("Выберите способ оплаты");
-        return;
-      }
-
-      if (!captcha) {
-        alert("Подтвердите, что вы не робот");
-        return;
-      }
-
-      try {
-        const res = await fetch("http://localhost:5000/checkout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            items,
-            address,
-            paymentMethod: payment,
-            captchaToken: "iamhuman"
-          })
-        });
-
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-          alert("Ошибка оформления заказа: " + (data.message || res.status));
-          return;
-        }
-
-        modal.remove();
-        alert(data.message || "Заказ успешно оформлен!");
-        location.reload();
-      } catch (_e) {
-        alert("Ошибка сети. Проверьте, что бэкенд запущен на http://localhost:5000");
-      }
-    });
-  }
 }

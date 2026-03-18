@@ -4,18 +4,19 @@ import { RegisterPage } from "./components/register";
 import { Header } from "./components/Header/Header";
 import { Footer } from "./components/Footer/Footer";
 import { CartPage } from "./components/cart";
+import { DeliveryPage } from "./components/delivery";
 import { AdminPage } from "./components/admin";
-import "./main.css";
+import './main.css';
 
 const API_BASE = "http://localhost:5000";
 
 interface Beer {
-    id: number | string;
-    name?: string;
-    title?: string;
+    id: number;
+    name: string;
+    description: string;
     price: number;
-    category?: string;
-    volume?: string;
+    category: string;
+    available: boolean;
     image?: string;
 }
 
@@ -27,12 +28,12 @@ interface User {
 }
 
 const BEER_DATA_FALLBACK: Beer[] = [
-    { id: 1, name: "Lager 1", price: 450, category: "Cat 1" },
-    { id: 2, name: "Wheat 1", price: 520, category: "Cat 2" },
-    { id: 3, name: "Fest 1", price: 600, category: "Cat 3" },
-    { id: 4, name: "Dark 1", price: 480, category: "Cat 4" },
-    { id: 5, name: "Ale 1", price: 550, category: "Cat 5" },
-    { id: 6, name: "Zero 1", price: 390, category: "Cat 1" },
+    { id: 1, name: "Lager 1", description: "Light lager beer with a clean finish.", price: 450, category: "Cat 1", available: true },
+    { id: 2, name: "Wheat 1", description: "Wheat beer with soft фруктовые ноты.", price: 520, category: "Cat 2", available: true },
+    { id: 3, name: "Fest 1", description: "Festbier for Oktoberfest — malty and smooth.", price: 600, category: "Cat 3", available: true },
+    { id: 4, name: "Dark 1", description: "Dark beer with caramel and roasted notes.", price: 480, category: "Cat 4", available: false },
+    { id: 5, name: "Ale 1", description: "Ale with bright aroma and balanced bitterness.", price: 550, category: "Cat 5", available: true },
+    { id: 6, name: "Zero 1", description: "Non-alcoholic beer, crisp and refreshing.", price: 390, category: "Cat 1", available: true },
 ];
 
 const rootElement = document.getElementById("app");
@@ -56,15 +57,42 @@ function getCurrentUser(): User | null {
 }
 
 function isAuthenticated(): boolean {
-    return !!localStorage.getItem("token");
+    return !!localStorage.getItem('user');
 }
 
-function isAdmin(): boolean {
-    return localStorage.getItem("role") === "admin";
+// Функция для выхода
+function logout(): void {
+    fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" })
+        .catch(() => {})
+        .finally(() => {
+            localStorage.removeItem('user');
+            router.navigate('/');
+        });
+}
+
+async function syncUserFromSession(): Promise<User | null> {
+    try {
+        const res = await fetch(`${API_BASE}/me`, { credentials: "include" });
+        if (!res.ok) {
+            localStorage.removeItem("user");
+            return null;
+        }
+        const data = await res.json();
+        if (data?.user) {
+            localStorage.setItem("user", JSON.stringify(data.user));
+            return data.user as User;
+        }
+        localStorage.removeItem("user");
+        return null;
+    } catch {
+        return getCurrentUser();
+    }
 }
 
 router.register("/", async () => {
     console.log("Главная страница загружена");
+
+    const user = await syncUserFromSession();
 
     const currentUser = getCurrentUser();
     const welcomeMessage = currentUser
@@ -78,7 +106,7 @@ router.register("/", async () => {
     try {
         const [productsRes, cartRes] = await Promise.all([
             fetch(`${API_BASE}/products`),
-            fetch(`${API_BASE}/cart`),
+            fetch(`${API_BASE}/cart`, { credentials: "include" }),
         ]);
 
         if (productsRes.ok) {
@@ -118,10 +146,13 @@ router.register("/", async () => {
                     <aside class="okt-filters">
                         <div class="filter-card">
                             <label class="filter-label">Поиск</label>
-                            <div class="search-box">
-                                <input type="text" id="mainSearch" placeholder="🔍 Поиск пива..." />
-                            </div>
-
+                            <div class="search-box"><input type="text" id="mainSearch" placeholder="🔍 Поиск пива..." /></div>
+                            <label class="filter-label">Сортировка</label>
+                            <select id="sortPrice" class="sort-select">
+                                <option value="">Без сортировки</option>
+                                <option value="price_asc">Цена ↑</option>
+                                <option value="price_desc">Цена ↓</option>
+                            </select>
                             <label class="filter-label">Категории</label>
                             <div class="filter-options">
                                 ${categories.map(category => `
@@ -132,25 +163,16 @@ router.register("/", async () => {
                                     </label>
                                 `).join("")}
                             </div>
-
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="availableOnly" />
+                                <span class="checkmark"></span>
+                                <span class="category-text">Только в наличии</span>
+                            </label>
                             <button class="btn-reset" id="clearFilters">Сбросить фильтры</button>
                         </div>
                     </aside>
 
                     <section class="okt-grid" id="beer-grid">
-                        ${beerData.map(beer => `
-                            <div class="beer-card">
-                                <div class="beer-image">
-                                    ${beer.image
-                                        ? `<img src="${beer.image}" alt="${beer.title || beer.name}" style="width:100%;height:180px;object-fit:cover;border-radius:12px;">`
-                                        : "🍺"}
-                                </div>
-                                <h3 class="beer-name">${beer.title || beer.name || "Без названия"}</h3>
-                                <p class="beer-category">${beer.category || beer.volume || ""}</p>
-                                <p class="beer-price">${beer.price} ₽</p>
-                                <button class="btn-buy" data-id="${beer.id}">➕ В КОРЗИНУ</button>
-                            </div>
-                        `).join("")}
                     </section>
                 </div>
             </main>
@@ -165,78 +187,122 @@ router.register("/", async () => {
         router.bindHeaderButtons();
     }, 50);
 
-    root.querySelectorAll(".btn-buy").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-            const id = String((e.currentTarget as HTMLElement).dataset.id);
-            const beer = beerData.find(b => String(b.id) === id);
-            if (!beer) return;
+    const gridEl = root.querySelector("#beer-grid") as HTMLElement;
 
-            try {
-                const res = await fetch(`${API_BASE}/cart`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        productId: String(beer.id),
-                        name: beer.title || beer.name,
-                        price: beer.price,
-                        quantity: 1,
-                    }),
-                });
+    const renderGrid = (data: Beer[]) => {
+        gridEl.innerHTML = data.map(beer => `
+            <div class="beer-card">
+                <div class="beer-image">
+                    ${beer.image
+                        ? `<img src="${API_BASE}${beer.image}" alt="${beer.name}" class="beer-img" onerror="this.outerHTML='🍺'" />`
+                        : "🍺"}
+                </div>
+                <h3 class="beer-name" data-title>${beer.name}</h3>
+                <p class="beer-category">${beer.category}</p>
+                <p class="beer-desc">${beer.description ?? ""}</p>
+                <p class="beer-price" data-price>${beer.price} ₽</p>
+                <div class="buy-row">
+                    <input class="qty-input" type="number" min="1" value="1" data-qty="${beer.id}" />
+                    <button class="btn-buy" data-id="${beer.id}" ${beer.available ? "" : "disabled"}>
+                        ${beer.available ? "➕ В КОРЗИНУ" : "Нет в наличии"}
+                    </button>
+                </div>
+            </div>
+        `).join("");
+    };
 
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    alert("Не удалось добавить в корзину: " + (err.message || res.status));
+    const bindBuyButtons = (data: Beer[]) => {
+        gridEl.querySelectorAll(".btn-buy").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                if (!user) {
+                    alert("Корзина доступна только для зарегистрированных пользователей");
+                    router.navigate("/login");
                     return;
                 }
+                const id = Number((e.currentTarget as HTMLElement).dataset.id);
+                const beer = data.find(b => b.id === id);
+                if (!beer) return;
+                const qtyInput = gridEl.querySelector<HTMLInputElement>(`.qty-input[data-qty="${beer.id}"]`);
+                const quantity = Math.max(1, Number(qtyInput?.value || 1));
+                try {
+                    const res = await fetch(`${API_BASE}/cart`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify({
+                            productId: String(beer.id),
+                            name: beer.name,
+                            price: beer.price,
+                            quantity,
+                        }),
+                    });
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        alert("Не удалось добавить в корзину: " + (err.message || res.status));
+                        return;
+                    }
+                    const cart = await res.json();
+                    const items = cart.items || [];
+                    const count = items.reduce((sum: number, i: { quantity: number }) => sum + i.quantity, 0);
+                    const total = items.reduce((sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity, 0);
+                    header.update(count, total);
+                    alert(`🍺 ${beer.name} добавлен в корзину!`);
+                } catch (_e) {
+                    alert("Ошибка сети. Проверьте, что бэкенд запущен на http://localhost:5000");
+                }
+            });
+        });
+    };
 
-                const cart = await res.json();
-                const items = cart.items || [];
-                const count = items.reduce((sum: number, i: { quantity: number }) => sum + i.quantity, 0);
-                const total = items.reduce((sum: number, i: { price?: number; quantity: number }) => sum + (i.price || 0) * i.quantity, 0);
-                header.update(count, total);
+    const loadProducts = async () => {
+        const q = (root.querySelector("#mainSearch") as HTMLInputElement | null)?.value?.trim() ?? "";
+        const sort = (root.querySelector("#sortPrice") as HTMLSelectElement | null)?.value ?? "";
+        const availableOnly = (root.querySelector("#availableOnly") as HTMLInputElement | null)?.checked ?? false;
+        const categories = Array.from(root.querySelectorAll<HTMLInputElement>(".cat-cb"))
+            .filter(cb => cb.checked)
+            .map(cb => `cat ${cb.dataset.id}`); // backend хранит "Cat N" => сравнение в lower-case
 
-                alert(`🍺 ${(beer.title || beer.name)} добавлен в корзину!`);
-            } catch (_e) {
-                alert("Ошибка сети. Проверьте, что бэкенд запущен на http://localhost:5000");
+        const params = new URLSearchParams();
+        if (q) params.set("q", q);
+        if (sort) params.set("sort", sort);
+        if (availableOnly) params.set("available", "true");
+        if (categories.length) params.set("category", categories.join(","));
+
+        try {
+            const res = await fetch(`${API_BASE}/products?${params.toString()}`);
+            if (!res.ok) throw new Error();
+            const products = await res.json();
+            if (Array.isArray(products)) {
+                beerData = products;
+                renderGrid(beerData);
+                bindBuyButtons(beerData);
             }
-        });
-    });
+        } catch {
+            // fallback
+            renderGrid(beerData);
+            bindBuyButtons(beerData);
+        }
+    };
 
-    function applyFilters() {
-        const searchInput = root.querySelector<HTMLInputElement>("#mainSearch");
-        const searchTerm = searchInput?.value.toLowerCase() || "";
+    renderGrid(beerData);
+    bindBuyButtons(beerData);
 
-        const selectedCategories = Array.from(
-            root.querySelectorAll<HTMLInputElement>(".cat-cb:checked")
-        ).map(cb => cb.dataset.category || "");
-
-        const cards = root.querySelectorAll<HTMLElement>(".beer-card");
-
-        cards.forEach((card, index) => {
-            const beer = beerData[index];
-            const beerName = (beer?.title || beer?.name || "").toLowerCase();
-            const beerCategory = beer?.category || "";
-
-            const matchSearch = beerName.includes(searchTerm);
-            const matchCategory =
-                selectedCategories.length === 0 || selectedCategories.includes(beerCategory);
-
-            card.style.display = matchSearch && matchCategory ? "block" : "none";
-        });
-    }
-
+    // Сброс фильтров
     root.querySelector("#clearFilters")?.addEventListener("click", () => {
         root.querySelectorAll<HTMLInputElement>(".cat-cb").forEach(cb => (cb.checked = false));
-        const searchInput = root.querySelector<HTMLInputElement>("#mainSearch");
-        if (searchInput) searchInput.value = "";
-        applyFilters();
+        const av = root.querySelector<HTMLInputElement>("#availableOnly");
+        if (av) av.checked = false;
+        const sort = root.querySelector<HTMLSelectElement>("#sortPrice");
+        if (sort) sort.value = "";
+        const search = root.querySelector<HTMLInputElement>("#mainSearch");
+        if (search) search.value = "";
+        loadProducts();
     });
 
-    root.querySelector("#mainSearch")?.addEventListener("input", applyFilters);
-
-    root.querySelectorAll(".cat-cb").forEach(cb => {
-        cb.addEventListener("change", applyFilters);
-    });
+    root.querySelector("#mainSearch")?.addEventListener("input", () => loadProducts());
+    root.querySelector("#sortPrice")?.addEventListener("change", () => loadProducts());
+    root.querySelector("#availableOnly")?.addEventListener("change", () => loadProducts());
+    root.querySelectorAll<HTMLInputElement>(".cat-cb").forEach(cb => cb.addEventListener("change", () => loadProducts()));
 });
 
 router.register("/login", () => {
@@ -270,19 +336,21 @@ router.register("/cart", () => {
     cartPage.mount(root);
 });
 
-router.register("/admin", () => {
-    console.log("Страница админки загружена");
-
-    if (!isAdmin()) {
-        router.navigate("/");
-        return;
-    }
-
-    root.innerHTML = "";
-    AdminPage();
+router.register("/delivery", () => {
+    console.log("Страница доставки загружена");
+    root.innerHTML = '';
+    const deliveryPage = new DeliveryPage();
+    deliveryPage.mount(root);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+router.register("/admin", () => {
+    root.innerHTML = '';
+    const adminPage = new AdminPage();
+    adminPage.mount(root);
+});
+
+// --- ПРЯМАЯ ПРИВЯЗКА КНОПОК ПОСЛЕ ЗАГРУЗКИ ---
+document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         router.bindHeaderButtons();
     }, 100);

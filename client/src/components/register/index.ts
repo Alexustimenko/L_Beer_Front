@@ -18,12 +18,15 @@ root.innerHTML = `
         <h1>🍺 Oktober Shop</h1>
         <p class="subtitle">Create your account</p>
 
+        <form data-registration class="auth-form" id="registrationForm">
         <div class="switch">
             <button data-mode="phone">Phone</button>
             <button data-mode="email" class="active">Email</button>
         </div>
 
         <input id="registerInput" placeholder="Email" />
+        <input id="login" placeholder="Login" />
+        <input id="phone" placeholder="Phone" />
         <input id="fullName" placeholder="Full name" />
         <input id="password" type="password" placeholder="Password"/>
         <input id="confirmPassword" type="password" placeholder="Confirm password"/>
@@ -33,6 +36,7 @@ root.innerHTML = `
         <span class="link-switch" id="goLogin">
             Already have an account? Login
         </span>
+        </form>
 
     </div>
 </div>
@@ -48,6 +52,8 @@ private bind(root: HTMLElement): void {
     const goLogin = root.querySelector<HTMLSpanElement>("#goLogin");
 
     const fullName = root.querySelector<HTMLInputElement>("#fullName");
+    const login = root.querySelector<HTMLInputElement>("#login");
+    const phone = root.querySelector<HTMLInputElement>("#phone");
     const password = root.querySelector<HTMLInputElement>("#password");
     const confirmPassword = root.querySelector<HTMLInputElement>("#confirmPassword");
 
@@ -76,7 +82,7 @@ private bind(root: HTMLElement): void {
 
         registerBtn.onclick = async () => {
 
-            if (!input || !fullName || !password || !confirmPassword) return;
+            if (!input || !fullName || !login || !phone || !password || !confirmPassword) return;
 
             if (password.value !== confirmPassword.value) {
                 alert("Passwords do not match");
@@ -86,6 +92,8 @@ private bind(root: HTMLElement): void {
             const data = {
                 email: input.value,
                 name: fullName.value,
+                login: login.value,
+                phone: phone.value,
                 password: password.value
             };
 
@@ -98,12 +106,16 @@ private bind(root: HTMLElement): void {
                     headers: {
                         "Content-Type": "application/json"
                     },
+                    credentials: "include",
 
                     body: JSON.stringify(data)
 
                 });
 
                 if (response.ok) {
+
+                    const payload = await response.json().catch(() => ({}));
+                    if (payload?.user) localStorage.setItem("user", JSON.stringify(payload.user));
 
                     alert("Registration successful");
 
