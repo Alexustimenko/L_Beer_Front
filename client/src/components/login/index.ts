@@ -22,7 +22,7 @@ export class LoginPage {
                     <button data-mode="email" class="active">Email</button>
                 </div>
 
-                <input id="loginInput" type="text" placeholder="Email" />
+                <input id="loginInput" type="text" placeholder="Email or admin" />
                 <input id="passwordInput" type="password" placeholder="Password"/>
                 
                 <div id="errorMessage" class="error-message" style="color: red; display: none; margin: 10px 0;"></div>
@@ -47,7 +47,6 @@ export class LoginPage {
         const goRegister = root.querySelector<HTMLSpanElement>("#goRegister");
         const errorDiv = root.querySelector<HTMLDivElement>("#errorMessage");
 
-        // Переключение между email/phone
         buttons.forEach(btn => {
             btn.onclick = () => {
                 buttons.forEach(b => b.classList.remove("active"));
@@ -55,25 +54,23 @@ export class LoginPage {
                 this.mode = btn.dataset.mode as LoginMode;
                 
                 if (input) {
-                    input.placeholder = this.mode === "email" ? "Email" : "Phone";
-                    input.type = this.mode === "email" ? "email" : "tel";
+                    input.placeholder = this.mode === "email" ? "Email or admin" : "Phone";
+                    input.type = this.mode === "email" ? "text" : "tel";
                 }
             };
         });
 
-        // Обработка входа
         if (loginButton) {
             loginButton.onclick = async () => {
-                const email = input?.value;
+                const email = input?.value?.trim();
                 const password = passwordInput?.value;
 
-                // Валидация
                 if (!email || !password) {
                     this.showError(errorDiv, "Please fill all fields");
                     return;
                 }
 
-                if (this.mode === "email" && !email.includes('@')) {
+                if (this.mode === "email" && !email.includes("@") && email !== "admin") {
                     this.showError(errorDiv, "Please enter a valid email");
                     return;
                 }
@@ -83,67 +80,67 @@ export class LoginPage {
                     return;
                 }
 
-                // Показываем загрузку
                 loginButton.textContent = "Loading...";
                 loginButton.disabled = true;
 
                 try {
-                    const response = await fetch('http://localhost:5000/login', {
-                        method: 'POST',
+                    const response = await fetch("http://localhost:5000/login", {
+                        method: "POST",
                         headers: {
-                            'Content-Type': 'application/json',
+                            "Content-Type": "application/json",
                         },
                         body: JSON.stringify({ 
-                            email: email, // Бэкенд ожидает email, даже если это телефон
-                            password 
+                            email,
+                            password
                         })
                     });
 
                     const data = await response.json();
 
                     if (response.ok) {
-                        // Сохраняем данные пользователя
-                        localStorage.setItem('token', data.token);
-                        localStorage.setItem('user', JSON.stringify(data.user));
-                        
-                        // Перенаправляем на главную
-                        window.location.href = '/';
+                        localStorage.setItem("token", data.token);
+                        localStorage.setItem("role", data.user.role);
+                        localStorage.setItem("userName", data.user.name);
+                        localStorage.setItem("user", JSON.stringify(data.user));
+
+                        if (data.user.role === "admin") {
+                            this.navigate("/admin");
+                        } else {
+                            this.navigate("/");
+                        }
                     } else {
-                        this.showError(errorDiv, data.message || 'Login failed');
+                        this.showError(errorDiv, data.message || "Login failed");
                     }
                 } catch (error) {
-                    this.showError(errorDiv, 'Network error. Please try again.');
-                    console.error('Login error:', error);
+                    this.showError(errorDiv, "Network error. Please try again.");
+                    console.error("Login error:", error);
                 } finally {
-                    // Убираем загрузку
                     loginButton.textContent = "Login";
                     loginButton.disabled = false;
                 }
             };
         }
 
-        // Переход на регистрацию
         if (goRegister) {
             goRegister.onclick = () => this.navigate("/register");
         }
 
-        // Добавляем обработку Enter
         const handleEnter = (e: KeyboardEvent) => {
-            if (e.key === 'Enter' && loginButton) {
+            if (e.key === "Enter" && loginButton) {
                 loginButton.click();
             }
         };
 
-        if (input) input.addEventListener('keypress', handleEnter);
-        if (passwordInput) passwordInput.addEventListener('keypress', handleEnter);
+        if (input) input.addEventListener("keypress", handleEnter);
+        if (passwordInput) passwordInput.addEventListener("keypress", handleEnter);
     }
 
     private showError(element: HTMLElement | null, message: string): void {
         if (element) {
-            element.style.display = 'block';
+            element.style.display = "block";
             element.textContent = message;
             setTimeout(() => {
-                element.style.display = 'none';
+                element.style.display = "none";
             }, 3000);
         }
     }
